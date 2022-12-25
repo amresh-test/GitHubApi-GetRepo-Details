@@ -4,8 +4,6 @@ import json
 import requests
 
 
-
-
 def _get_forks() -> None:
     forks = repo.get_forks()
     print("Total numbers of forks CTFd repo has ", forks.totalCount)
@@ -27,8 +25,11 @@ def _get_contributors() -> None:
 
 def _get_release() -> None:
     releases = repo.get_releases()
+    _releas = []
     for _release in range(3):
-        print("These are the latest 3 releases of CTFd?", releases.__getitem__(index=_release).title)
+        _releas.append(releases.__getitem__(index=_release).title)
+        # print("These are the latest 3 releases of CTFd?", releases.__getitem__(index=_release).title)
+    print("These are the latest 3 releases of CTFd", _releas)
 
 
 def _get_commits() -> None:
@@ -66,7 +67,7 @@ def _get_pr_by_user() -> None:
             for _number in user_pull:
                 _number_list.append(_number.number)
     _pr_user = []
-    headers = {'Authorization': 'token ' + token}
+    headers = {'Authorization': 'token ' + _token}
     user_pull = str(repo.pulls_url)
     for _pr in _number_list:
         url = user_pull.replace("{/number}", ("/" + str(_pr)))
@@ -85,18 +86,25 @@ def _get_pr_by_user() -> None:
     print("users PRs in descending order", sorted(_usr_list, reverse=True))
 
 
-if __name__== "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("Token")
-    args = parser.parse_args()
+if __name__ == "__main__":
 
-    # token = "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"
-    _token = args.Token
-    # _git: Github = Github("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")
+    with open('input.json') as _file:
+        _data = json.loads(_file.read())
+
+    try:
+
+        parser = argparse.ArgumentParser()
+        parser.add_argument("Token")
+        args = parser.parse_args()
+        _token = args.Token
+    except:
+        _token = _data["token"]
+    # print(_token)
     _git: Github = Github(_token)
 
-
-    repo = _git.get_repo("CTFd/CTFd")
+    _repo = _data["repo"]
+    # print(_repo)
+    repo = _git.get_repo(_repo)
     _get_release()
     _get_forks()
     _get_stars()
@@ -104,3 +112,4 @@ if __name__== "__main__":
     _get_pull()
     _get_commits()
     _get_commit_by_user()
+    _get_pr_by_user()
